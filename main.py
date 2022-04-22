@@ -1,4 +1,5 @@
 from ctypes.wintypes import RGB
+from hashlib import new
 from tracemalloc import stop
 from PIL import Image, ImageOps
 from os import listdir
@@ -56,9 +57,10 @@ def closest_image(color_palette, image):
     return closest_image
 
 def get_colors2array(get_colors):
-    array = np.zeros((len(get_colors),4), dtype=int)
+    array = np.empty(shape=[0,4], dtype=int)
     for x in range(len(get_colors)):
-        array[x] = np.append(get_colors[x][0], np.array(get_colors[x][1]))
+        if(get_colors[x][1][3] != 0):
+            array = np.vstack([array, np.append(get_colors[x][0], np.array(get_colors[x][1][:3]))])
     return(array)
 
 
@@ -78,19 +80,9 @@ def main():
     image=Image.open(args.imagePath)
     image.load()
 
-    ## Image processing
-    # remove alpha channel
+    # store alpha channel
+    alphachan = image.split()[-1]
     image = image.convert("RGB")
-
-    # invert image (so that white is 0)
-    invert_im = ImageOps.invert(image)
-    
-    # crop background
-    imageBox = invert_im.getbbox()
-    invert_im.close()
-
-    image=image.crop(imageBox)
-
 
     ## Get color palette from taking average color for each files in directory (or pickled list)
     if(args.verbose):
@@ -111,6 +103,7 @@ def main():
         print("# converting each pixel to closest color in palette")
 
     new_image = closest_image(palette_rgb, image)
+    new_image.putalpha(alphachan) #add alpha channel again
 
     ## Count number of pixels of each new color (aka necessary fusebeads of each color to complete the project)
     image_colors_rgb = new_image.getcolors(MAX_INT)
