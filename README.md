@@ -6,4 +6,4 @@ Input Spritesheet :
 
 
 Output Spritesheet using a color palette scraped from screenshots of fusebeads : 
-![Alt text]([PROCESSED_spritesheet.png])
+![Alt text]([PROCESSEDspritesheet.png])
