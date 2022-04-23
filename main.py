@@ -1,7 +1,5 @@
+import PIL.Image
 from ctypes.wintypes import RGB
-from hashlib import new
-from tracemalloc import stop
-from PIL import Image, ImageOps
 from os import listdir
 from os.path import isfile, isdir
 import numpy as np
@@ -9,41 +7,41 @@ import argparse
 
 MAX_INT = 42424242
 
-def rgb2hex(rgb_tuple):
-    return('#{:02x}{:02x}{:02x}'.format(rgb_tuple[0],rgb_tuple[1],rgb_tuple[2]))
+def rgb2hex(rgb : tuple) -> str:
+    return('#{:02x}{:02x}{:02x}'.format(rgb[0],rgb[1],rgb[2]))
 
-def hex2rgb(hex):
+def hex2rgb(hex : str) -> tuple:
     return(tuple(int(hex.strip("#")[i:i+2], 16) for i in (0, 2, 4)))
 
-def average_color_of_image(pil_img):
-    img = pil_img.copy()
+def average_color_of_image(image : PIL.Image.Image) -> tuple:
+    img = image.copy()
     img = img.convert("RGB")
     img = img.resize((1, 1), resample=0)
     return(img.getpixel((0, 0)))
 
-def get_palette_from_file(filePath):
+def get_palette_from_file(filePath : str) -> list:
     palette = list()
     array = np.genfromtxt(filePath, delimiter=",", dtype=int)
     for rgb in array:
         palette.append(tuple(rgb))
     return(palette)
 
-def get_palette_from_folder(directoryPath):
+def get_palette_from_folder(directoryPath : str) -> list:
     palette = list()
     for file in listdir(directoryPath):
-        tmp_img = Image.open(directoryPath+"/"+file)
+        tmp_img = PIL.Image.open(directoryPath+"/"+file)
         tmp_averagecolor = average_color_of_image(tmp_img)
         palette.append(tmp_averagecolor)
     return(palette)
 
-def closest_rgb(color, color_list):
+def closest_rgb(color : tuple, color_list : list) -> tuple:
     color_list = np.array(color_list)
     color = np.array(color)
     distances = np.sqrt(np.sum((color_list-color)**2,axis=1))
     index_of_smallest = np.where(distances==np.amin(distances))
     return(tuple(color_list[index_of_smallest][0]))
 
-def closest_image(color_palette, image):
+def closest_image(color_palette : list, image : PIL.Image.Image) -> PIL.Image.Image:
     image.convert("RGB")
     closest_image = image.copy()
     closest_colors = dict()
@@ -56,7 +54,7 @@ def closest_image(color_palette, image):
             closest_image.putpixel((x,y), closest_colors[tmp_rgb])
     return closest_image
 
-def get_colors2array(get_colors):
+def get_colors2array(get_colors : list) -> np.ndarray:
     array = np.empty(shape=[0,4], dtype=int)
     for x in range(len(get_colors)):
         if(get_colors[x][1][3] != 0):
@@ -77,7 +75,7 @@ def main():
 
     if(args.verbose):
         print("# loading input image :"+args.imagePath)
-    image=Image.open(args.imagePath)
+    image=PIL.Image.open(args.imagePath)
     image.load()
 
     # store alpha channel
