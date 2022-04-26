@@ -40,6 +40,11 @@ def get_palette_from_folder(directoryPath : str) -> list:
         palette.append(tmp_averagecolor)
     return(palette)
 
+def palette_to_cssv(palette : list, outPath : str) -> bool:
+    array = np.array(palette)
+    np.savetxt(outPath, array, delimiter=",", fmt="%i", comments="", header="r,g,b")
+    return(True)
+
 def closest_rgb(color : tuple, color_list : list) -> tuple:
     color_list = np.array(color_list)
     color = np.array(color)
@@ -99,8 +104,6 @@ def main():
     else:
         print("--color_palette need to be a file or a directory path.")
         exit()
-    
-    #palette_hex = [rgb2hex(rgb) for rgb in palette_rgb]
 
     ## Convert colors to color palette (aka avaliable fusebead colors)
     if(args.verbose):
