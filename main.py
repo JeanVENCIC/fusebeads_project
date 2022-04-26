@@ -40,7 +40,7 @@ def get_palette_from_folder(directoryPath : str) -> list:
         palette.append(tmp_averagecolor)
     return(palette)
 
-def palette_to_cssv(palette : list, outPath : str) -> bool:
+def palette_to_csv(palette : list, outPath : str) -> bool:
     array = np.array(palette)
     np.savetxt(outPath, array, delimiter=",", fmt="%i", comments="", header="r,g,b")
     return(True)
