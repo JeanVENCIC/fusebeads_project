@@ -13,11 +13,17 @@ def rgb2hex(rgb : tuple) -> str:
 def hex2rgb(hex : str) -> tuple:
     return(tuple(int(hex.strip("#")[i:i+2], 16) for i in (0, 2, 4)))
 
-def average_color_of_image(image : PIL.Image.Image) -> tuple:
-    img = image.copy()
-    img = img.convert("RGB")
-    img = img.resize((1, 1), resample=0)
-    return(img.getpixel((0, 0)))
+def mean_color_of_image(image : PIL.Image.Image) -> tuple:
+    array = np.array(image.getdata())
+    mean = array.mean(axis=0, dtype=int)
+    mean = mean[:3]
+    return(tuple(mean))
+
+def median_color_of_image(image : PIL.Image.Image) -> tuple:
+    array = np.array(image.getdata())
+    median = np.mean(array, axis=0, dtype=int)
+    median = median[:3]
+    return(tuple(median))
 
 def get_palette_from_file(filePath : str) -> list:
     palette = list()
@@ -30,7 +36,7 @@ def get_palette_from_folder(directoryPath : str) -> list:
     palette = list()
     for file in listdir(directoryPath):
         tmp_img = PIL.Image.open(directoryPath+"/"+file)
-        tmp_averagecolor = average_color_of_image(tmp_img)
+        tmp_averagecolor = mean_color_of_image(tmp_img)
         palette.append(tmp_averagecolor)
     return(palette)
 
