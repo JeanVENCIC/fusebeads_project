@@ -1,5 +1,6 @@
 import PIL.Image
 from ctypes.wintypes import RGB
+from skimage import color as col
 from os import listdir
 from os.path import isfile, isdir
 import numpy as np
@@ -51,6 +52,18 @@ def closest_rgb(color : tuple, color_list : list) -> tuple:
     distances = np.sqrt(np.sum((color_list-color)**2,axis=1))
     index_of_smallest = np.where(distances==np.amin(distances))
     return(tuple(color_list[index_of_smallest][0]))
+
+# works really badly... damn you random stackoverflow post (https://youtu.be/muehxvezYmI)
+def closest_rgb_labdeltaE(color : tuple, color_list : list) -> tuple:
+    color_list = np.array(color_list, dtype="float")
+    color_list_lab = np.array([col.rgb2lab(x) for x in color_list])
+    
+    color = np.array(color, dtype="float")
+    color_lab = np.array(col.rgb2lab(color))
+
+    distances = np.array([col.delta_e.deltaE_ciede2000(color_lab, x) for x in color_list_lab])
+    index_of_smallest = np.where(distances==np.amin(distances))
+    return(tuple(color_list[index_of_smallest][0].astype("int")))
 
 def closest_image(color_palette : list, image : PIL.Image.Image) -> PIL.Image.Image:
     image.convert("RGB")
